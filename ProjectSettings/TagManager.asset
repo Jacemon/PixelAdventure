@@ -9,6 +9,7 @@ TagManager:
   - Trap
   - Checkpoint
   - Score
+  - HealthBar
   layers:
   - Default
   - TransparentFX

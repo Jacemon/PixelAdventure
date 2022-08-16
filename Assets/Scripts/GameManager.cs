@@ -11,11 +11,18 @@ public class GameManager : MonoBehaviour
     private GameObject[] characters;
 
     private int charIndex;
+    private int playerLife = 300;
 
     public int CharIndex
     {
         get { return charIndex; }
         set { charIndex = value; }
+    }
+
+    public int PlayerLife
+    {
+        get { return playerLife; }
+        set { playerLife = value; }
     }
 
     private void Awake()
@@ -41,7 +48,8 @@ public class GameManager : MonoBehaviour
 
     void InstantiateCharacter(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != "MainMenu" && scene.name != "GameFinished")
+        if (scene.name != "MainMenu" && scene.name != "GameFinished" && scene.name != "GameOver")
             Instantiate(characters[charIndex]);
     }
+
 }

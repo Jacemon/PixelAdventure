@@ -20,6 +20,9 @@ public class Player : MonoBehaviour
     private AudioSource collectSound;
 
     [SerializeField]
+    private AudioSource hitSound;
+
+    [SerializeField]
     private AudioSource deathSound;
 
     [SerializeField]
@@ -31,7 +34,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer sr;
     private Animator animator;
     private bool onGround;
-    private int levelNum = 2;
+    private int levelNum = 3;
     private enum State { IDLE, RUNNING, JUMPING, FALLING }
     private State state;
     private int count = 0;
@@ -116,6 +119,9 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Trap"))
             PlayerDeath();
 
+        if (collision.gameObject.CompareTag("Enemy"))
+            PlayerHit();
+
         if (collision.gameObject.CompareTag("Checkpoint") &&
             GameObject.FindGameObjectsWithTag("Apple").Length == 0)
         {
@@ -130,6 +136,13 @@ public class Player : MonoBehaviour
         body.bodyType = RigidbodyType2D.Static;
         animator.SetTrigger("Death");
         deathSound.Play();
+    }
+
+    private void PlayerHit()
+    {
+        GameManager.instance.PlayerLife -= 30;
+        animator.SetTrigger("Hit");
+        hitSound.Play();
     }
 
     private void NextLevel()
@@ -152,7 +165,7 @@ public class Player : MonoBehaviour
 
     private void RestartLevel()
     {
-        if (GameManager.instance.PlayerLife == 0)
+        if (GameManager.instance.PlayerLife <= 0)
             SceneManager.LoadScene("GameOver");
         else
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -162,5 +175,15 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         NextLevel();
+    }
+
+    public void ToIdle()
+    {
+        animator.ResetTrigger("Hit");
+        state = State.IDLE;
+        animator.SetInteger("State", (int)state);
+
+        if(GameManager.instance.PlayerLife <= 0)
+            SceneManager.LoadScene("GameOver");
     }
 }

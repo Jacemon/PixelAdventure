@@ -10,6 +10,7 @@ TagManager:
   - Checkpoint
   - Score
   - HealthBar
+  - Enemy
   layers:
   - Default
   - TransparentFX

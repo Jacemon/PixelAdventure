@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -34,10 +32,11 @@ public class Player : MonoBehaviour
     private SpriteRenderer sr;
     private Animator animator;
     private bool onGround;
-    private int levelNum = 3;
-    private enum State { IDLE, RUNNING, JUMPING, FALLING }
+    private enum State { Idle, Running, Jumping, Falling }
     private State state;
-    private int count = 0;
+    private int count;
+    
+    private const int LevelNumber = 3;
 
     private void Awake()
     {
@@ -45,19 +44,19 @@ public class Player : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         healthBar = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<HealthBar>();
-        healthBar.SetMaxValue(300);
-        healthBar.SetValue(GameManager.instance.PlayerLife);
+        healthBar.SetMaxValue(GameManager.Instance.playerMaxLife);
+        healthBar.SetValue(GameManager.Instance.playerLife);
     }
 
-    void Update()
+    private void Update()
     {
         PlayerMove();
         PlayerJump();
         AnimatePlayer();
-        healthBar.SetValue(GameManager.instance.PlayerLife);
+        healthBar.SetValue(GameManager.Instance.playerLife);
     }
 
-    void PlayerMove()
+    private void PlayerMove()
     {
         if (body.bodyType == RigidbodyType2D.Dynamic)
         {
@@ -66,9 +65,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    void PlayerJump()
+    private void PlayerJump()
     {
-        if (Input.GetButton("Jump") && onGround && body.bodyType == RigidbodyType2D.Dynamic)
+        if (Input.GetButton("Jump") && state != State.Jumping && state != State.Falling 
+            && onGround && body.bodyType == RigidbodyType2D.Dynamic)
         {
             onGround = false;
             body.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
@@ -76,25 +76,25 @@ public class Player : MonoBehaviour
         }
     }
 
-    void AnimatePlayer()
+    private void AnimatePlayer()
     {
         if (movementX > 0)
         {
-            state = State.RUNNING;
+            state = State.Running;
             sr.flipX = false;
         }
         else if (movementX < 0)
         {
-            state = State.RUNNING;
+            state = State.Running;
             sr.flipX = true;
         }
         else
-            state = State.IDLE;
+            state = State.Idle;
 
         if (body.velocity.y > .1f)
-            state = State.JUMPING;
+            state = State.Jumping;
         else if (body.velocity.y < -.1f)
-            state = State.FALLING;
+            state = State.Falling;
 
         animator.SetInteger("State", (int)state);
     }
@@ -117,10 +117,10 @@ public class Player : MonoBehaviour
         }
 
         if (collision.gameObject.CompareTag("Trap"))
-            PlayerDeath();
+            PlayerHit(GameManager.Instance.trapDamage);
 
         if (collision.gameObject.CompareTag("Enemy"))
-            PlayerHit();
+            PlayerHit(GameManager.Instance.enemyDamage);
 
         if (collision.gameObject.CompareTag("Checkpoint") &&
             GameObject.FindGameObjectsWithTag("Apple").Length == 0)
@@ -130,17 +130,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void PlayerDeath()
+    private IEnumerator PlayerDeath()
     {
-        GameManager.instance.PlayerLife -= 100;
         body.bodyType = RigidbodyType2D.Static;
         animator.SetTrigger("Death");
         deathSound.Play();
+        yield return new WaitForSeconds(1);
+        SceneManager.LoadScene("GameOver");
     }
 
-    private void PlayerHit()
+    private void PlayerHit(int damage)
     {
-        GameManager.instance.PlayerLife -= 30;
+        GameManager.Instance.playerLife -= damage;
         animator.SetTrigger("Hit");
         hitSound.Play();
     }
@@ -149,29 +150,20 @@ public class Player : MonoBehaviour
     {
         string currLevelName = SceneManager.GetActiveScene().name;
         string[] strings = currLevelName.Split("_");
-        int currLevel = int.Parse(strings[strings.Length - 1]);
+        int currLevel = int.Parse(strings[^1]);
 
-        if(currLevel == levelNum)
+        if(currLevel == LevelNumber)
             SceneManager.LoadScene("GameFinished");
         else
         {
             ++currLevel;
-            strings[strings.Length - 1] = currLevel.ToString();
-            string nextLevelName = string.Join("_", strings);
-            GameManager.instance.PlayerLife = 300;
+            strings[^1] = currLevel.ToString();
+            var nextLevelName = string.Join("_", strings);
             SceneManager.LoadScene(nextLevelName);
         }
     }
 
-    private void RestartLevel()
-    {
-        if (GameManager.instance.PlayerLife <= 0)
-            SceneManager.LoadScene("GameOver");
-        else
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    IEnumerator FinishLevel()
+    private IEnumerator FinishLevel()
     {
         yield return new WaitForSeconds(1);
         NextLevel();
@@ -180,10 +172,11 @@ public class Player : MonoBehaviour
     public void ToIdle()
     {
         animator.ResetTrigger("Hit");
-        state = State.IDLE;
-        animator.SetInteger("State", (int)state);
+        state = State.Idle;
 
-        if(GameManager.instance.PlayerLife <= 0)
-            SceneManager.LoadScene("GameOver");
+        if (GameManager.Instance.playerLife <= 0)
+        {
+            StartCoroutine(PlayerDeath());
+        }
     }
 }

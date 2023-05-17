@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6919883724649947580}
   - component: {fileID: 6919883724649947583}
   - component: {fileID: 6919883724649947582}
-  - component: {fileID: 6919883724649947569}
+  - component: {fileID: -7290369323729801396}
   - component: {fileID: 6919883724649947581}
   - component: {fileID: 6919883724649947578}
   - component: {fileID: 2007105694}
@@ -114,8 +114,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!70 &6919883724649947569
-CapsuleCollider2D:
+--- !u!61 &-7290369323729801396
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -127,9 +127,19 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0058045387, y: -0.23798531}
-  m_Size: {x: 1.384721, y: 1.5240296}
-  m_Direction: 0
+  m_Offset: {x: 0, y: -0.25}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 2}
+    newSize: {x: 0.32, y: 0.32}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1.45}
+  m_EdgeRadius: 0
 --- !u!114 &6919883724649947581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,7 +161,7 @@ MonoBehaviour:
   finishSound: {fileID: 2007105705}
 --- !u!95 &6919883724649947578
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -168,7 +178,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!82 &2007105694
 AudioSource:
   m_ObjectHideFlags: 0

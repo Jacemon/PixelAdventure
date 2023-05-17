@@ -1,35 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public static GameManager Instance;
 
+    public int playerMaxLife = 8;
+    public int playerLife;
+    [FormerlySerializedAs("deathDamage")]
+    [Space]
+    public int trapDamage = 2;
+    [FormerlySerializedAs("hitDamage")]
+    public int enemyDamage = 1;
+    
     [SerializeField]
     private GameObject[] characters;
 
-    private int charIndex;
-    private int playerLife = 300;
-
-    public int CharIndex
-    {
-        get { return charIndex; }
-        set { charIndex = value; }
-    }
-
-    public int PlayerLife
-    {
-        get { return playerLife; }
-        set { playerLife = value; }
-    }
+    public int CharIndex { get; set; }
 
     private void Awake()
-    {
-        if (instance == null)
+    { 
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -46,10 +40,16 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= InstantiateCharacter;
     }
 
-    void InstantiateCharacter(Scene scene, LoadSceneMode mode)
+    public void ReloadLives()
     {
+        playerLife = playerMaxLife;
+    }
+    
+    private void InstantiateCharacter(Scene scene, LoadSceneMode mode)
+    {
+        ReloadLives();
         if (scene.name != "MainMenu" && scene.name != "GameFinished" && scene.name != "GameOver")
-            Instantiate(characters[charIndex]);
+            Instantiate(characters[CharIndex]);
     }
 
 }
